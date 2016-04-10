@@ -1,0 +1,3 @@
+package: github.com/firba1/chem
+import:
+- package: github.com/stretchr/testify
