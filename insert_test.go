@@ -53,11 +53,19 @@ func TestInsertStmtValues(t *testing.T) {
 	tx, err := db.Begin()
 	assert.Nil(t, err)
 
-	_, err = stmt.Values(tx, tweet{Text: "test tweet"})
+	result, err := stmt.Values(tx, tweet{Text: "test tweet"})
 	assert.Nil(t, err)
 
 	err = tx.Commit()
 	assert.Nil(t, err)
+
+	id, err := result.LastInsertId()
+	assert.Nil(t, err)
+	assert.Equal(t, id, int64(1))
+
+	rowsAffected, err := result.RowsAffected()
+	assert.Nil(t, err)
+	assert.Equal(t, rowsAffected, int64(1))
 
 	row := db.QueryRow("SELECT text, likes FROM tweet WHERE text = ?", "test tweet")
 	dbtweet := tweet{}
