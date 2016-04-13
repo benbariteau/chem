@@ -38,6 +38,7 @@ func (i InsertStmt) Values(tx *sql.Tx, value interface{}) (sql.Result, error) {
 		}
 		return BadResult{err}, err
 	}
+
 	columns := make([]string, reflectedType.NumField())
 	values := make([]interface{}, reflectedType.NumField())
 	for i := 0; i < reflectedType.NumField(); i++ {

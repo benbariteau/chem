@@ -14,7 +14,11 @@ type tweet struct {
 	Likes uint
 }
 
-type tweetTableType struct{}
+type tweetTableType struct {
+	Id    IntegerColumn
+	Text  BaseColumn
+	Likes BaseColumn
+}
 
 func (_ tweetTableType) Name() string {
 	return "tweet"
@@ -24,7 +28,30 @@ func (_ tweetTableType) Type() reflect.Type {
 	return reflect.TypeOf(tweet{})
 }
 
-var tweetTable = tweetTableType{}
+func (t tweetTableType) Columns() []Column {
+	return []Column{
+		t.Id,
+		t.Text,
+		t.Likes,
+	}
+}
+
+var tweetTable = tweetTableType{
+	Id: IntegerColumn{
+		BaseColumn{
+			table: tweetTableType{},
+			name:  "id",
+		},
+	},
+	Text: BaseColumn{
+		table: tweetTableType{},
+		name:  "text",
+	},
+	Likes: BaseColumn{
+		table: tweetTableType{},
+		name:  "likes",
+	},
+}
 
 const tweetTableDef = `
 CREATE TABLE tweet (
@@ -72,4 +99,29 @@ func TestInsertStmtValues(t *testing.T) {
 	err = row.Scan(&dbtweet.Text, &dbtweet.Likes)
 	assert.Nil(t, err)
 	assert.Equal(t, dbtweet, tweet{Text: "test tweet", Likes: 0})
+}
+
+func TestSelectStmtOne(t *testing.T) {
+	db := setupDB()
+
+	_, err := db.Exec("INSERT INTO tweet (id, text, likes) VALUES (?, ?, ?)", 1, "test tweet", 5)
+	assert.Nil(t, err)
+
+	tx, err := db.Begin()
+	assert.Nil(t, err)
+
+	var id int
+	dbtweet := tweet{}
+	err = Select(
+		tweetTable,
+	).Where(
+		tweetTable.Id.Equals(1),
+	).One(tx, &id, &dbtweet.Text, &dbtweet.Likes)
+
+	assert.Nil(t, err)
+	assert.Equal(t, id, 1)
+	assert.Equal(t, dbtweet, tweet{"test tweet", 5})
+
+	err = tx.Commit()
+	assert.Nil(t, err)
 }
