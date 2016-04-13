@@ -116,7 +116,7 @@ func TestSelectStmtOne(t *testing.T) {
 		tweetTable,
 	).Where(
 		tweetTable.Id.Equals(1),
-	).One(tx, &id, &dbtweet.Text, &dbtweet.Likes)
+	).One(tx, &id, &dbtweet)
 
 	assert.Nil(t, err)
 	assert.Equal(t, id, 1)

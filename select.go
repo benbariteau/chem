@@ -3,6 +3,7 @@ package chem
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -111,6 +112,22 @@ func getAllBinds(filters []Filter) []interface{} {
 	return out
 }
 
+func flattenValues(values []interface{}) (out []interface{}) {
+	for _, value := range values {
+		reflection := reflect.ValueOf(value).Elem()
+		reflectType := reflection.Type()
+		switch reflectType.Kind() {
+		case reflect.Struct:
+			for i := 0; i < reflection.NumField(); i++ {
+				out = append(out, reflection.Field(i).Addr().Interface())
+			}
+		default:
+			out = append(out, value)
+		}
+	}
+	return
+}
+
 func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
 	stmt := fmt.Sprintf(
 		"SELECT %v FROM %v WHERE %v",
@@ -119,5 +136,8 @@ func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
 		strings.Join(toBooleanExpressions(s.filters), " AND "),
 	)
 
-	return tx.QueryRow(stmt, getAllBinds(s.filters)...).Scan(values...)
+	return tx.QueryRow(
+		stmt,
+		getAllBinds(s.filters)...,
+	).Scan(flattenValues(values)...)
 }
