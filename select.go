@@ -12,25 +12,6 @@ type SelectStmt struct {
 	filters []Filter
 }
 
-type IntegerFilter struct {
-	col   Column
-	value int
-}
-
-func (f IntegerFilter) toBooleanExpression() string {
-	return fmt.Sprintf("%v == ?", f.col.toColumnExpression())
-}
-
-func (f IntegerFilter) binds() (out []interface{}) {
-	out = append(out, f.value)
-	return
-}
-
-type Filter interface {
-	binds() []interface{}
-	toBooleanExpression() string
-}
-
 func Select(columnThings ...Columnser) SelectStmt {
 	columns := make([]Column, 0, len(columnThings))
 	for _, c := range columnThings {
