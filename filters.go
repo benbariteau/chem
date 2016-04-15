@@ -17,6 +17,7 @@ const (
 	lessThanOrEqualOperator    = "<="
 	greaterThanOperator        = ">"
 	greaterThanOrEqualOperator = ">="
+	likeOperator               = "LIKE"
 )
 
 type ValueFilter struct {
