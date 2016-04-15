@@ -9,31 +9,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type tweet struct {
+type Tweet struct {
 	Text  string
 	Likes uint
 }
 
-type tweetRow struct {
-	id int
-	tweet
+type TweetRow struct {
+	Id int
+	Tweet
 }
 
-type tweetTableType struct {
+type TweetTableType struct {
 	Id    IntegerColumn
 	Text  StringColumn
 	Likes IntegerColumn
 }
 
-func (_ tweetTableType) Name() string {
+func (_ TweetTableType) Name() string {
 	return "tweet"
 }
 
-func (_ tweetTableType) Type() reflect.Type {
-	return reflect.TypeOf(tweet{})
+func (_ TweetTableType) Type() reflect.Type {
+	return reflect.TypeOf(Tweet{})
 }
 
-func (t tweetTableType) Columns() []Column {
+func (t TweetTableType) Columns() []Column {
 	return []Column{
 		t.Id,
 		t.Text,
@@ -41,22 +41,22 @@ func (t tweetTableType) Columns() []Column {
 	}
 }
 
-var tweetTable = tweetTableType{
+var tweetTable = TweetTableType{
 	Id: IntegerColumn{
 		BaseColumn{
-			table: tweetTableType{},
+			table: TweetTableType{},
 			name:  "id",
 		},
 	},
 	Text: StringColumn{
 		BaseColumn{
-			table: tweetTableType{},
+			table: TweetTableType{},
 			name:  "text",
 		},
 	},
 	Likes: IntegerColumn{
 		BaseColumn{
-			table: tweetTableType{},
+			table: TweetTableType{},
 			name:  "likes",
 		},
 	},
@@ -89,7 +89,7 @@ func TestInsertStmtValues(t *testing.T) {
 	tx, err := db.Begin()
 	assert.Nil(t, err)
 
-	result, err := stmt.Values(tx, tweet{Text: "test tweet"})
+	result, err := stmt.Values(tx, Tweet{Text: "test tweet"})
 	assert.Nil(t, err)
 
 	err = tx.Commit()
@@ -104,10 +104,10 @@ func TestInsertStmtValues(t *testing.T) {
 	assert.Equal(t, rowsAffected, int64(1))
 
 	row := db.QueryRow("SELECT text, likes FROM tweet WHERE text = ?", "test tweet")
-	dbtweet := tweet{}
+	dbtweet := Tweet{}
 	err = row.Scan(&dbtweet.Text, &dbtweet.Likes)
 	assert.Nil(t, err)
-	assert.Equal(t, dbtweet, tweet{Text: "test tweet", Likes: 0})
+	assert.Equal(t, dbtweet, Tweet{Text: "test tweet", Likes: 0})
 }
 
 func TestSelectStmtOne(t *testing.T) {
@@ -119,17 +119,15 @@ func TestSelectStmtOne(t *testing.T) {
 	tx, err := db.Begin()
 	assert.Nil(t, err)
 
-	var id int
-	dbtweet := tweet{}
+	dbtweet := TweetRow{}
 	err = Select(
 		tweetTable,
 	).Where(
 		tweetTable.Id.Equals(1),
-	).One(tx, &id, &dbtweet)
+	).One(tx, &dbtweet)
 
 	assert.Nil(t, err)
-	assert.Equal(t, id, 1)
-	assert.Equal(t, dbtweet, tweet{"test tweet", 5})
+	assert.Equal(t, dbtweet, TweetRow{1, Tweet{"test tweet", 5}})
 
 	err = tx.Commit()
 	assert.Nil(t, err)
