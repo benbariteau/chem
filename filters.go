@@ -40,7 +40,7 @@ type ColumnFilter struct {
 	right    Column
 }
 
-func (f ValueFilter) toBooleanExpression() string {
+func (f ColumnFilter) toBooleanExpression() string {
 	return fmt.Sprintf(
 		"%v %v %v",
 		f.left.toColumnExpression(),
@@ -49,7 +49,7 @@ func (f ValueFilter) toBooleanExpression() string {
 	)
 }
 
-func (f ValueFilter) binds() []interface{} {
+func (f ColumnFilter) binds() []interface{} {
 	return []interface{}{}
 }
 
