@@ -57,9 +57,13 @@ func (f BooleanOperatorFilter) binds() []interface{} {
 	return out
 }
 
+const (
+	andOperator = "AND"
+)
+
 func And(filters ...Filter) Filter {
 	return BooleanOperatorFilter{
-		operator: "AND",
+		operator: andOperator,
 		filters:  filters,
 	}
 }
