@@ -59,9 +59,10 @@ func (f BooleanOperatorFilter) binds() []interface{} {
 
 const (
 	andOperator = "AND"
+	orOperator  = "OR"
 )
 
-func And(filters ...Filter) Filter {
+func AND(filters ...Filter) Filter {
 	return BooleanOperatorFilter{
 		operator: andOperator,
 		filters:  filters,

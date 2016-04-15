@@ -93,7 +93,7 @@ func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
 				strings.Join(toTableNames(s.columns), ", "),
 			),
 			makeWhereClause(
-				And(
+				AND(
 					s.filters...,
 				),
 			),
