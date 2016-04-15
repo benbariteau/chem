@@ -140,7 +140,6 @@ func (s SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
 		if err != nil {
 			return err
 		}
-		fmt.Println(rowValues, rowValues[0])
 
 		for i, rowValue := range rowValues {
 			reflections[i].Set(reflect.Append(reflections[i], reflect.ValueOf(rowValue).Elem()))
