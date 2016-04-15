@@ -31,8 +31,9 @@ type IntegerColumn struct {
 }
 
 func (c IntegerColumn) Equals(i int) Filter {
-	return IntegerFilter{
-		col:   c,
-		value: i,
+	return ValueFilter{
+		column:   c,
+		operator: equalsOperator,
+		value:    i,
 	}
 }

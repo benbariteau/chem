@@ -10,19 +10,9 @@ type Filter interface {
 	toBooleanExpression() string
 }
 
-type IntegerFilter struct {
-	col   Column
-	value int
-}
-
-func (f IntegerFilter) toBooleanExpression() string {
-	return fmt.Sprintf("%v == ?", f.col.toColumnExpression())
-}
-
-func (f IntegerFilter) binds() (out []interface{}) {
-	out = append(out, f.value)
-	return
-}
+const (
+	equalsOperator = "=="
+)
 
 type ValueFilter struct {
 	column   Column
