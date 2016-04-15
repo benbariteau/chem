@@ -76,12 +76,29 @@ func flattenValues(values []interface{}) (out []interface{}) {
 	return
 }
 
+func makeWhereClause(f Filter) string {
+	expression := f.toBooleanExpression()
+	if expression == "" {
+		return ""
+	}
+	return fmt.Sprintf("WHERE %v", expression)
+}
+
 func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
-	stmt := fmt.Sprintf(
-		"SELECT %v FROM %v WHERE %v",
-		strings.Join(toColumnExpressions(s.columns), ", "),
-		strings.Join(toTableNames(s.columns), ", "),
-		strings.Join(toBooleanExpressions(s.filters), " AND "),
+	stmt := strings.Join(
+		filterStringSlice(
+			fmt.Sprintf(
+				"SELECT %v FROM %v",
+				strings.Join(toColumnExpressions(s.columns), ", "),
+				strings.Join(toTableNames(s.columns), ", "),
+			),
+			makeWhereClause(
+				And(
+					s.filters...,
+				),
+			),
+		),
+		" ",
 	)
 
 	return tx.QueryRow(
