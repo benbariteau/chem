@@ -68,3 +68,10 @@ func AND(filters ...Filter) Filter {
 		filters:  filters,
 	}
 }
+
+func OR(filters ...Filter) Filter {
+	return BooleanOperatorFilter{
+		operator: orOperator,
+		filters:  filters,
+	}
+}
