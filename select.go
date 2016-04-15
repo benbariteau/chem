@@ -106,3 +106,46 @@ func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
 		AND(s.filters...).binds()...,
 	).Scan(flattenValues(values)...)
 }
+
+func (s SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
+	reflections := make([]reflect.Value, len(values))
+	for i, value := range values {
+		reflection := reflect.ValueOf(value).Elem()
+		reflectType := reflection.Type()
+		if reflectType.Kind() != reflect.Slice {
+			return NonSliceError{
+				Type: reflectType,
+			}
+		}
+		reflections[i] = reflection
+	}
+
+	rows, err := tx.Query(
+		s.constructSQL(),
+		AND(s.filters...).binds()...,
+	)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		// create new slice element value(s) to scan the database row into
+		rowValues := make([]interface{}, len(reflections))
+		for i, reflection := range reflections {
+			rowValues[i] = reflect.New(reflection.Type().Elem()).Interface()
+		}
+
+		err = rows.Scan(flattenValues(rowValues)...)
+		if err != nil {
+			return err
+		}
+		fmt.Println(rowValues, rowValues[0])
+
+		for i, rowValue := range rowValues {
+			reflections[i].Set(reflect.Append(reflections[i], reflect.ValueOf(rowValue).Elem()))
+		}
+	}
+
+	return rows.Err()
+}

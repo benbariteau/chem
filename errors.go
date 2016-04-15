@@ -29,3 +29,11 @@ func (b BadResult) LastInsertId() (int64, error) {
 func (b BadResult) RowsAffected() (int64, error) {
 	return -1, b.Err
 }
+
+type NonSliceError struct {
+	Type reflect.Type
+}
+
+func (e NonSliceError) Error() string {
+	return fmt.Sprintf("expecting a slice type, got %v", e.Type)
+}
