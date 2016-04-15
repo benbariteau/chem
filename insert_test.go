@@ -14,10 +14,15 @@ type tweet struct {
 	Likes uint
 }
 
+type tweetRow struct {
+	id int
+	tweet
+}
+
 type tweetTableType struct {
 	Id    IntegerColumn
-	Text  BaseColumn
-	Likes BaseColumn
+	Text  StringColumn
+	Likes IntegerColumn
 }
 
 func (_ tweetTableType) Name() string {
@@ -43,13 +48,17 @@ var tweetTable = tweetTableType{
 			name:  "id",
 		},
 	},
-	Text: BaseColumn{
-		table: tweetTableType{},
-		name:  "text",
+	Text: StringColumn{
+		BaseColumn{
+			table: tweetTableType{},
+			name:  "text",
+		},
 	},
-	Likes: BaseColumn{
-		table: tweetTableType{},
-		name:  "likes",
+	Likes: IntegerColumn{
+		BaseColumn{
+			table: tweetTableType{},
+			name:  "likes",
+		},
 	},
 }
 
