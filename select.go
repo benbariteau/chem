@@ -62,6 +62,7 @@ func flattenValues(values []interface{}) []interface{} {
 		switch reflectType.Kind() {
 		case reflect.Struct:
 			for i := 0; i < reflection.NumField(); i++ {
+				// flatten this struct into pointers to each field of it
 				out = append(out, reflection.Field(i).Addr().Interface())
 			}
 			flattened = true
