@@ -52,7 +52,10 @@ func toBooleanExpressions(filters []Filter) (out []string) {
 	return
 }
 
-func flattenValues(values []interface{}) (out []interface{}) {
+func flattenValues(values []interface{}) []interface{} {
+	out := make([]interface{}, 0, len(values))
+	flattened := false
+
 	for _, value := range values {
 		reflection := reflect.ValueOf(value).Elem()
 		reflectType := reflection.Type()
@@ -61,11 +64,17 @@ func flattenValues(values []interface{}) (out []interface{}) {
 			for i := 0; i < reflection.NumField(); i++ {
 				out = append(out, reflection.Field(i).Addr().Interface())
 			}
+			flattened = true
 		default:
 			out = append(out, value)
 		}
 	}
-	return
+	// if we ever flattened any structs, there could be nested structs, so let's recurse
+	if flattened {
+		return flattenValues(out)
+	}
+	// otherwise we're done
+	return out
 }
 
 func makeWhereClause(f Filter) string {
