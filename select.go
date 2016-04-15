@@ -52,14 +52,6 @@ func toBooleanExpressions(filters []Filter) (out []string) {
 	return
 }
 
-func getAllBinds(filters []Filter) []interface{} {
-	out := make([]interface{}, 0, len(filters))
-	for _, f := range filters {
-		out = append(out, f.binds()...)
-	}
-	return out
-}
-
 func flattenValues(values []interface{}) (out []interface{}) {
 	for _, value := range values {
 		reflection := reflect.ValueOf(value).Elem()
@@ -85,6 +77,8 @@ func makeWhereClause(f Filter) string {
 }
 
 func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
+	combinedFilter := AND(s.filters...)
+
 	stmt := strings.Join(
 		filterStringSlice(
 			fmt.Sprintf(
@@ -92,17 +86,13 @@ func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
 				strings.Join(toColumnExpressions(s.columns), ", "),
 				strings.Join(toTableNames(s.columns), ", "),
 			),
-			makeWhereClause(
-				AND(
-					s.filters...,
-				),
-			),
+			makeWhereClause(combinedFilter),
 		),
 		" ",
 	)
 
 	return tx.QueryRow(
 		stmt,
-		getAllBinds(s.filters)...,
+		combinedFilter.binds()...,
 	).Scan(flattenValues(values)...)
 }
