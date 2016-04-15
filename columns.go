@@ -37,3 +37,15 @@ func (c IntegerColumn) Equals(i int) Filter {
 		value:    i,
 	}
 }
+
+type StringColumn struct {
+	BaseColumn
+}
+
+func (c StringColumn) Equals(s string) Filter {
+	return ValueFilter{
+		column:   c,
+		operator: equalsOperator,
+		value:    s,
+	}
+}
