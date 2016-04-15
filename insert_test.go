@@ -87,37 +87,37 @@ func TestInsertStmtValues(t *testing.T) {
 	stmt := Insert(tweetTable)
 
 	tx, err := db.Begin()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	result, err := stmt.Values(tx, Tweet{Text: "test tweet"})
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	err = tx.Commit()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	id, err := result.LastInsertId()
-	assert.Nil(t, err)
-	assert.Equal(t, id, int64(1))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), id)
 
 	rowsAffected, err := result.RowsAffected()
-	assert.Nil(t, err)
-	assert.Equal(t, rowsAffected, int64(1))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(1), rowsAffected)
 
 	row := db.QueryRow("SELECT text, likes FROM tweet WHERE text = ?", "test tweet")
 	dbtweet := Tweet{}
 	err = row.Scan(&dbtweet.Text, &dbtweet.Likes)
-	assert.Nil(t, err)
-	assert.Equal(t, dbtweet, Tweet{Text: "test tweet", Likes: 0})
+	assert.NoError(t, err)
+	assert.Equal(t, Tweet{Text: "test tweet", Likes: 0}, dbtweet)
 }
 
 func TestSelectStmtFirst(t *testing.T) {
 	db := setupDB()
 
 	_, err := db.Exec("INSERT INTO tweet (id, text, likes) VALUES (?, ?, ?)", 1, "test tweet", 5)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	tx, err := db.Begin()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	dbtweet := TweetRow{}
 	err = Select(
@@ -126,22 +126,22 @@ func TestSelectStmtFirst(t *testing.T) {
 		tweetTable.Id.Equals(1),
 	).First(tx, &dbtweet)
 
-	assert.Nil(t, err)
-	assert.Equal(t, dbtweet, TweetRow{1, Tweet{"test tweet", 5}})
+	assert.NoError(t, err)
+	assert.Equal(t, TweetRow{1, Tweet{"test tweet", 5}}, dbtweet)
 
 	err = tx.Commit()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 }
 
 func TestSelectStmtAll(t *testing.T) {
 	db := setupDB()
 
 	_, err := db.Exec("INSERT INTO tweet (id, text, likes) VALUES (?, ?, ?)", 1, "test tweet 1", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	_, err = db.Exec("INSERT INTO tweet (id, text, likes) VALUES (?, ?, ?)", 2, "test tweet 2", 2)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	_, err = db.Exec("INSERT INTO tweet (id, text, likes) VALUES (?, ?, ?)", 3, "test tweet 3", 3)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	tx, err := db.Begin()
 	assert.NoError(t, err)
@@ -165,5 +165,5 @@ func TestSelectStmtAll(t *testing.T) {
 	)
 
 	err = tx.Commit()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 }
