@@ -11,7 +11,12 @@ type Filter interface {
 }
 
 const (
-	equalsOperator = "="
+	equalsOperator             = "="
+	notEqualsOperator          = "!="
+	lessThanOperator           = "<"
+	lessThanOrEqualOperator    = "<="
+	greaterThanOperator        = ">"
+	greaterThanOrEqualOperator = ">="
 )
 
 type ValueFilter struct {
