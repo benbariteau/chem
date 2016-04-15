@@ -100,7 +100,7 @@ func (s SelectStmt) constructSQL() string {
 	)
 }
 
-func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
+func (s SelectStmt) First(tx *sql.Tx, values ...interface{}) error {
 	return tx.QueryRow(
 		s.constructSQL(),
 		AND(s.filters...).binds()...,

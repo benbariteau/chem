@@ -110,7 +110,7 @@ func TestInsertStmtValues(t *testing.T) {
 	assert.Equal(t, dbtweet, Tweet{Text: "test tweet", Likes: 0})
 }
 
-func TestSelectStmtOne(t *testing.T) {
+func TestSelectStmtFirst(t *testing.T) {
 	db := setupDB()
 
 	_, err := db.Exec("INSERT INTO tweet (id, text, likes) VALUES (?, ?, ?)", 1, "test tweet", 5)
@@ -124,7 +124,7 @@ func TestSelectStmtOne(t *testing.T) {
 		tweetTable,
 	).Where(
 		tweetTable.Id.Equals(1),
-	).One(tx, &dbtweet)
+	).First(tx, &dbtweet)
 
 	assert.Nil(t, err)
 	assert.Equal(t, dbtweet, TweetRow{1, Tweet{"test tweet", 5}})
