@@ -11,7 +11,7 @@ type Filter interface {
 }
 
 const (
-	equalsOperator = "=="
+	equalsOperator = "="
 )
 
 type ValueFilter struct {
