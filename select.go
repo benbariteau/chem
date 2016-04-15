@@ -76,23 +76,23 @@ func makeWhereClause(f Filter) string {
 	return fmt.Sprintf("WHERE %v", expression)
 }
 
-func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
-	combinedFilter := AND(s.filters...)
-
-	stmt := strings.Join(
+func (s SelectStmt) constructSQL() string {
+	return strings.Join(
 		filterStringSlice(
 			fmt.Sprintf(
 				"SELECT %v FROM %v",
 				strings.Join(toColumnExpressions(s.columns), ", "),
 				strings.Join(toTableNames(s.columns), ", "),
 			),
-			makeWhereClause(combinedFilter),
+			makeWhereClause(AND(s.filters...)),
 		),
 		" ",
 	)
+}
 
+func (s SelectStmt) One(tx *sql.Tx, values ...interface{}) error {
 	return tx.QueryRow(
-		stmt,
-		combinedFilter.binds()...,
+		s.constructSQL(),
+		AND(s.filters...).binds()...,
 	).Scan(flattenValues(values)...)
 }
