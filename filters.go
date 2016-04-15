@@ -34,6 +34,25 @@ func (f ValueFilter) binds() []interface{} {
 	return []interface{}{f.value}
 }
 
+type ColumnFilter struct {
+	left     Column
+	operator string
+	right    Column
+}
+
+func (f ValueFilter) toBooleanExpression() string {
+	return fmt.Sprintf(
+		"%v %v %v",
+		f.left.toColumnExpression(),
+		f.operator,
+		f.right.toColumnExpression(),
+	)
+}
+
+func (f ValueFilter) binds() []interface{} {
+	return []interface{}{}
+}
+
 type BooleanOperatorFilter struct {
 	operator string
 	filters  []Filter
