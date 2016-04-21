@@ -1,9 +1,12 @@
 package chem
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
+
+var ErrTooFewValues = errors.New("must set at least one value when updating")
 
 type IncorrectTypeError struct {
 	Got      reflect.Type
