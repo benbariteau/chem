@@ -21,9 +21,9 @@ func Select(columnThings ...Columnser) SelectStmt {
 	return SelectStmt{columns: columns}
 }
 
-func (s SelectStmt) Where(filters ...Filter) SelectStmt {
-	s.filters = filters
-	return s
+func (stmt SelectStmt) Where(filters ...Filter) SelectStmt {
+	stmt.filters = append(stmt.filters, filters...)
+	return stmt
 }
 
 func toTableNames(columns []Column) []string {
