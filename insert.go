@@ -28,10 +28,10 @@ func binds(num int) []string {
 	return out
 }
 
-func (i InsertStmt) Values(tx *sql.Tx, value interface{}) (sql.Result, error) {
+func (stmt InsertStmt) Values(tx *sql.Tx, value interface{}) (sql.Result, error) {
 	reflection := reflect.ValueOf(value)
 	reflectedType := reflection.Type()
-	if tableType := i.table.Type(); reflectedType != tableType {
+	if tableType := stmt.table.Type(); reflectedType != tableType {
 		err := IncorrectTypeError{
 			Got:      reflectedType,
 			Expected: tableType,
@@ -56,7 +56,7 @@ func (i InsertStmt) Values(tx *sql.Tx, value interface{}) (sql.Result, error) {
 
 	queryString := fmt.Sprintf(
 		"INSERT INTO %v (%v) VALUES (%v)",
-		i.table.Name(),
+		stmt.table.Name(),
 		strings.Join(columns, ", "),
 		strings.Join(binds(len(columns)), ", "),
 	)
