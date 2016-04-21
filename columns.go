@@ -5,10 +5,6 @@ import (
 	"sort"
 )
 
-type Columnser interface {
-	Columns() []Column
-}
-
 type Column interface {
 	Table() Table
 	toColumnExpression(withTableName bool) string

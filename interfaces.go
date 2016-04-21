@@ -2,7 +2,17 @@ package chem
 
 import (
 	"database/sql"
+	"reflect"
 )
+
+type Table interface {
+	Name() string
+	Type() reflect.Type
+}
+
+type Columnser interface {
+	Columns() []Column
+}
 
 // DB is simply the common inteface between *sql.Tx and *sql.DB
 type DB interface {

@@ -7,11 +7,6 @@ import (
 	"strings"
 )
 
-type Table interface {
-	Name() string
-	Type() reflect.Type
-}
-
 type InsertStmt struct {
 	table Table
 }
