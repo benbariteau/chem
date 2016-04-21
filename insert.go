@@ -28,7 +28,7 @@ func binds(num int) []string {
 	return out
 }
 
-func (stmt InsertStmt) Values(tx *sql.Tx, value interface{}) (sql.Result, error) {
+func (stmt InsertStmt) Values(db DB, value interface{}) (sql.Result, error) {
 	reflection := reflect.ValueOf(value)
 	reflectedType := reflection.Type()
 	if tableType := stmt.table.Type(); reflectedType != tableType {
@@ -60,7 +60,7 @@ func (stmt InsertStmt) Values(tx *sql.Tx, value interface{}) (sql.Result, error)
 		strings.Join(columns, ", "),
 		strings.Join(binds(len(columns)), ", "),
 	)
-	preparedStmt, err := tx.Prepare(queryString)
+	preparedStmt, err := db.Prepare(queryString)
 	if err != nil {
 		return BadResult{err}, err
 	}

@@ -55,7 +55,7 @@ func allBinds(bindLists ...[]interface{}) []interface{} {
 	return out
 }
 
-func (stmt UpdateStmt) Set(tx *sql.Tx, values map[Column]interface{}) (sql.Result, error) {
+func (stmt UpdateStmt) Set(db DB, values map[Column]interface{}) (sql.Result, error) {
 	if len(values) == 0 {
 		return BadResult{ErrTooFewValues}, ErrTooFewValues
 	}
@@ -69,7 +69,7 @@ func (stmt UpdateStmt) Set(tx *sql.Tx, values map[Column]interface{}) (sql.Resul
 		),
 		" ",
 	)
-	preparedStmt, err := tx.Prepare(queryString)
+	preparedStmt, err := db.Prepare(queryString)
 	if err != nil {
 		return BadResult{err}, err
 	}

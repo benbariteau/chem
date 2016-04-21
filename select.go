@@ -79,10 +79,10 @@ func makeWhereClause(f Filter, withTableNames bool) string {
 	return fmt.Sprintf("WHERE %v", expression)
 }
 
-func (stmt SelectStmt) prepareStmt(tx *sql.Tx) (*sql.Stmt, error) {
+func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
 	tableNames := toTableNames(stmt.columns)
 	fullyQualifyColumns := (len(tableNames) > 1)
-	return tx.Prepare(
+	return db.Prepare(
 		strings.Join(
 			filterStringSlice(
 				fmt.Sprintf(
@@ -97,8 +97,8 @@ func (stmt SelectStmt) prepareStmt(tx *sql.Tx) (*sql.Stmt, error) {
 	)
 }
 
-func (stmt SelectStmt) First(tx *sql.Tx, values ...interface{}) error {
-	preparedStmt, err := stmt.prepareStmt(tx)
+func (stmt SelectStmt) First(db DB, values ...interface{}) error {
+	preparedStmt, err := stmt.prepareStmt(db)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (stmt SelectStmt) First(tx *sql.Tx, values ...interface{}) error {
 	).Scan(flattenValues(values)...)
 }
 
-func (stmt SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
+func (stmt SelectStmt) All(db DB, values ...interface{}) error {
 	reflections := make([]reflect.Value, len(values))
 	for i, value := range values {
 		reflection := reflect.ValueOf(value).Elem()
@@ -120,7 +120,7 @@ func (stmt SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
 		reflections[i] = reflection
 	}
 
-	preparedStmt, err := stmt.prepareStmt(tx)
+	preparedStmt, err := stmt.prepareStmt(db)
 	if err != nil {
 		return err
 	}
