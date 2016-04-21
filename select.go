@@ -96,8 +96,11 @@ func (stmt SelectStmt) constructSQL() string {
 }
 
 func (stmt SelectStmt) First(tx *sql.Tx, values ...interface{}) error {
-	return tx.QueryRow(
-		stmt.constructSQL(),
+	preparedStmt, err := tx.Prepare(stmt.constructSQL())
+	if err != nil {
+		return err
+	}
+	return preparedStmt.QueryRow(
 		AND(stmt.filters...).binds()...,
 	).Scan(flattenValues(values)...)
 }
@@ -115,8 +118,12 @@ func (stmt SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
 		reflections[i] = reflection
 	}
 
-	rows, err := tx.Query(
-		stmt.constructSQL(),
+	preparedStmt, err := tx.Prepare(stmt.constructSQL())
+	if err != nil {
+		return err
+	}
+
+	rows, err := preparedStmt.Query(
 		AND(stmt.filters...).binds()...,
 	)
 	if err != nil {

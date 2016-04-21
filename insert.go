@@ -60,6 +60,10 @@ func (stmt InsertStmt) Values(tx *sql.Tx, value interface{}) (sql.Result, error)
 		strings.Join(columns, ", "),
 		strings.Join(binds(len(columns)), ", "),
 	)
+	preparedStmt, err := tx.Prepare(queryString)
+	if err != nil {
+		return BadResult{err}, err
+	}
 
-	return tx.Exec(queryString, values...)
+	return preparedStmt.Exec(values...)
 }

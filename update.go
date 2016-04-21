@@ -69,5 +69,14 @@ func (stmt UpdateStmt) Set(tx *sql.Tx, values map[Column]interface{}) (sql.Resul
 		),
 		" ",
 	)
-	return tx.Exec(queryString, allBinds(bindValues, combinedFilter.binds())...)
+	preparedStmt, err := tx.Prepare(queryString)
+	if err != nil {
+		return BadResult{err}, err
+	}
+	return preparedStmt.Exec(
+		allBinds(
+			bindValues,
+			combinedFilter.binds(),
+		)...,
+	)
 }
