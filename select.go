@@ -28,8 +28,8 @@ func (stmt SelectStmt) Where(filters ...Filter) SelectStmt {
 
 func toTableNames(columns []Column) []string {
 	names := make(map[string]bool)
-	for _, c := range columns {
-		names[c.Table().Name()] = true
+	for _, column := range columns {
+		names[column.Table().Name()] = true
 	}
 	nameList := make([]string, 0, len(names))
 	for name := range names {
@@ -39,8 +39,8 @@ func toTableNames(columns []Column) []string {
 }
 
 func toColumnExpressions(columns []Column, withTableName bool) (out []string) {
-	for _, c := range columns {
-		out = append(out, c.toColumnExpression(withTableName))
+	for _, column := range columns {
+		out = append(out, column.toColumnExpression(withTableName))
 	}
 	return
 }
@@ -79,30 +79,30 @@ func makeWhereClause(f Filter, withTableNames bool) string {
 	return fmt.Sprintf("WHERE %v", expression)
 }
 
-func (s SelectStmt) constructSQL() string {
-	tableNames := toTableNames(s.columns)
+func (stmt SelectStmt) constructSQL() string {
+	tableNames := toTableNames(stmt.columns)
 	fullyQualifyColumns := (len(tableNames) > 1)
 	return strings.Join(
 		filterStringSlice(
 			fmt.Sprintf(
 				"SELECT %v FROM %v",
-				strings.Join(toColumnExpressions(s.columns, fullyQualifyColumns), ", "),
+				strings.Join(toColumnExpressions(stmt.columns, fullyQualifyColumns), ", "),
 				strings.Join(tableNames, ", "),
 			),
-			makeWhereClause(AND(s.filters...), fullyQualifyColumns),
+			makeWhereClause(AND(stmt.filters...), fullyQualifyColumns),
 		),
 		" ",
 	)
 }
 
-func (s SelectStmt) First(tx *sql.Tx, values ...interface{}) error {
+func (stmt SelectStmt) First(tx *sql.Tx, values ...interface{}) error {
 	return tx.QueryRow(
-		s.constructSQL(),
-		AND(s.filters...).binds()...,
+		stmt.constructSQL(),
+		AND(stmt.filters...).binds()...,
 	).Scan(flattenValues(values)...)
 }
 
-func (s SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
+func (stmt SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
 	reflections := make([]reflect.Value, len(values))
 	for i, value := range values {
 		reflection := reflect.ValueOf(value).Elem()
@@ -116,8 +116,8 @@ func (s SelectStmt) All(tx *sql.Tx, values ...interface{}) error {
 	}
 
 	rows, err := tx.Query(
-		s.constructSQL(),
-		AND(s.filters...).binds()...,
+		stmt.constructSQL(),
+		AND(stmt.filters...).binds()...,
 	)
 	if err != nil {
 		return err
