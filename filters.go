@@ -7,7 +7,7 @@ import (
 
 type Filter interface {
 	binds() []interface{}
-	toBooleanExpression() string
+	toBooleanExpression(withTableNames bool) string
 }
 
 const (
@@ -26,8 +26,8 @@ type ValueFilter struct {
 	value    interface{}
 }
 
-func (f ValueFilter) toBooleanExpression() string {
-	return fmt.Sprintf("%v %v ?", f.column.toColumnExpression(), f.operator)
+func (f ValueFilter) toBooleanExpression(withTableNames bool) string {
+	return fmt.Sprintf("%v %v ?", f.column.toColumnExpression(withTableNames), f.operator)
 }
 
 func (f ValueFilter) binds() []interface{} {
@@ -40,12 +40,12 @@ type ColumnFilter struct {
 	right    Column
 }
 
-func (f ColumnFilter) toBooleanExpression() string {
+func (f ColumnFilter) toBooleanExpression(withTableNames bool) string {
 	return fmt.Sprintf(
 		"%v %v %v",
-		f.left.toColumnExpression(),
+		f.left.toColumnExpression(withTableNames),
 		f.operator,
-		f.right.toColumnExpression(),
+		f.right.toColumnExpression(withTableNames),
 	)
 }
 
@@ -58,10 +58,10 @@ type BooleanOperatorFilter struct {
 	filters  []Filter
 }
 
-func (f BooleanOperatorFilter) toBooleanExpression() string {
+func (f BooleanOperatorFilter) toBooleanExpression(withTableNames bool) string {
 	expressionList := make([]string, len(f.filters))
 	for i, filter := range f.filters {
-		expressionList[i] = filter.toBooleanExpression()
+		expressionList[i] = filter.toBooleanExpression(withTableNames)
 	}
 	expression := strings.Join(
 		expressionList,

@@ -38,16 +38,9 @@ func toTableNames(columns []Column) []string {
 	return nameList
 }
 
-func toColumnExpressions(columns []Column) (out []string) {
+func toColumnExpressions(columns []Column, withTableName bool) (out []string) {
 	for _, c := range columns {
-		out = append(out, c.toColumnExpression())
-	}
-	return
-}
-
-func toBooleanExpressions(filters []Filter) (out []string) {
-	for _, filter := range filters {
-		out = append(out, filter.toBooleanExpression())
+		out = append(out, c.toColumnExpression(withTableName))
 	}
 	return
 }
@@ -78,8 +71,8 @@ func flattenValues(values []interface{}) []interface{} {
 	return out
 }
 
-func makeWhereClause(f Filter) string {
-	expression := f.toBooleanExpression()
+func makeWhereClause(f Filter, withTableNames bool) string {
+	expression := f.toBooleanExpression(withTableNames)
 	if expression == "" {
 		return ""
 	}
@@ -87,14 +80,16 @@ func makeWhereClause(f Filter) string {
 }
 
 func (s SelectStmt) constructSQL() string {
+	tableNames := toTableNames(s.columns)
+	fullyQualifyColumns := (len(tableNames) > 1)
 	return strings.Join(
 		filterStringSlice(
 			fmt.Sprintf(
 				"SELECT %v FROM %v",
-				strings.Join(toColumnExpressions(s.columns), ", "),
-				strings.Join(toTableNames(s.columns), ", "),
+				strings.Join(toColumnExpressions(s.columns, fullyQualifyColumns), ", "),
+				strings.Join(tableNames, ", "),
 			),
-			makeWhereClause(AND(s.filters...)),
+			makeWhereClause(AND(s.filters...), fullyQualifyColumns),
 		),
 		" ",
 	)

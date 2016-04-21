@@ -10,7 +10,7 @@ type Columnser interface {
 
 type Column interface {
 	Table() Table
-	toColumnExpression() string
+	toColumnExpression(withTableName bool) string
 }
 
 type BaseColumn struct {
@@ -18,8 +18,11 @@ type BaseColumn struct {
 	name  string
 }
 
-func (c BaseColumn) toColumnExpression() string {
-	return fmt.Sprintf("%v.%v", c.table.Name(), c.name)
+func (c BaseColumn) toColumnExpression(withTableName bool) string {
+	if withTableName {
+		return fmt.Sprintf("%v.%v", c.table.Name(), c.name)
+	}
+	return c.name
 }
 
 func (c BaseColumn) Table() Table {
