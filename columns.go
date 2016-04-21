@@ -2,6 +2,7 @@ package chem
 
 import (
 	"fmt"
+	"sort"
 )
 
 type Columnser interface {
@@ -11,6 +12,37 @@ type Columnser interface {
 type Column interface {
 	Table() Table
 	toColumnExpression(withTableName bool) string
+}
+
+type columns struct {
+	columns *[]Column
+	less    func(left, right Column) bool
+}
+
+func (cols columns) Len() int {
+	return len(*cols.columns)
+}
+
+func (cols columns) Swap(i, j int) {
+	(*cols.columns)[i], (*cols.columns)[j] = (*cols.columns)[j], (*cols.columns)[i]
+}
+
+func (cols columns) Less(i, j int) bool {
+	return cols.less((*cols.columns)[i], (*cols.columns)[j])
+}
+
+func lessColumnsByUnqualifiedName(left, right Column) bool {
+	return left.toColumnExpression(false) < right.toColumnExpression(false)
+}
+
+func sortColumns(cols []Column) []Column {
+	copiedSlice := cols[:]
+	sorter := columns{
+		columns: &copiedSlice,
+		less:    lessColumnsByUnqualifiedName,
+	}
+	sort.Sort(sorter)
+	return *sorter.columns
 }
 
 type BaseColumn struct {
