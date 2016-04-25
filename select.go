@@ -17,6 +17,7 @@ type SelectStmt struct {
 	filters   []Filter
 	orderings []Ordering
 	limit     nullableInt
+	offset    nullableInt
 }
 
 func Select(columnThings ...Columnser) SelectStmt {
@@ -40,6 +41,11 @@ func (stmt SelectStmt) OrderBy(orderings ...Ordering) SelectStmt {
 
 func (stmt SelectStmt) Limit(limit int) SelectStmt {
 	stmt.limit = nullableInt{value: limit, valid: true}
+	return stmt
+}
+
+func (stmt SelectStmt) Offset(offset int) SelectStmt {
+	stmt.offset = nullableInt{value: offset, valid: true}
 	return stmt
 }
 
@@ -112,11 +118,24 @@ func makeOrderByClause(orderings []Ordering, fullyQualifyColumns bool) string {
 	)
 }
 
-func makeLimitClause(limit nullableInt) string {
+func makeOffsetClause(offset nullableInt) string {
+	if !offset.valid {
+		return ""
+	}
+	return fmt.Sprintf("OFFSET %v", offset.value)
+}
+
+func makeLimitClause(limit nullableInt, offset nullableInt) string {
 	if !limit.valid {
 		return ""
 	}
-	return fmt.Sprintf("LIMIT %v", limit.value)
+	return strings.Join(
+		filterStringSlice(
+			fmt.Sprintf("LIMIT %v", limit.value),
+			makeOffsetClause(offset),
+		),
+		" ",
+	)
 }
 
 func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
@@ -132,7 +151,7 @@ func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
 				),
 				makeWhereClause(AND(stmt.filters...), fullyQualifyColumns),
 				makeOrderByClause(stmt.orderings, fullyQualifyColumns),
-				makeLimitClause(stmt.limit),
+				makeLimitClause(stmt.limit, stmt.offset),
 			),
 			" ",
 		),
