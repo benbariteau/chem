@@ -57,6 +57,20 @@ func (c BaseColumn) Table() Table {
 	return c.table
 }
 
+func (c BaseColumn) Asc() Ordering {
+	return ColumnOrdering{
+		column:     c,
+		descending: false,
+	}
+}
+
+func (c BaseColumn) Desc() Ordering {
+	return ColumnOrdering{
+		column:     c,
+		descending: true,
+	}
+}
+
 type IntegerColumn struct {
 	BaseColumn
 }

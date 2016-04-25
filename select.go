@@ -8,8 +8,9 @@ import (
 )
 
 type SelectStmt struct {
-	columns []Column
-	filters []Filter
+	columns   []Column
+	filters   []Filter
+	orderings []Ordering
 }
 
 func Select(columnThings ...Columnser) SelectStmt {
@@ -23,6 +24,11 @@ func Select(columnThings ...Columnser) SelectStmt {
 
 func (stmt SelectStmt) Where(filters ...Filter) SelectStmt {
 	stmt.filters = append(stmt.filters, filters...)
+	return stmt
+}
+
+func (stmt SelectStmt) OrderBy(orderings ...Ordering) SelectStmt {
+	stmt.orderings = append(stmt.orderings, orderings...)
 	return stmt
 }
 
@@ -79,6 +85,22 @@ func makeWhereClause(f Filter, withTableNames bool) string {
 	return fmt.Sprintf("WHERE %v", expression)
 }
 
+func makeOrderByClause(orderings []Ordering, fullyQualifyColumns bool) string {
+	if len(orderings) == 0 {
+		return ""
+	}
+
+	expressionList := make([]string, len(orderings))
+	for i, ordering := range orderings {
+		expressionList[i] = ordering.toOrderingExpression(fullyQualifyColumns)
+	}
+
+	return fmt.Sprintf(
+		"ORDER BY %v",
+		strings.Join(expressionList, ", "),
+	)
+}
+
 func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
 	tableNames := toTableNames(stmt.columns)
 	fullyQualifyColumns := (len(tableNames) > 1)
@@ -91,6 +113,7 @@ func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
 					strings.Join(tableNames, ", "),
 				),
 				makeWhereClause(AND(stmt.filters...), fullyQualifyColumns),
+				makeOrderByClause(stmt.orderings, fullyQualifyColumns),
 			),
 			" ",
 		),
