@@ -62,7 +62,7 @@ func (stmt UpdateStmt) Set(db DB, values map[Column]interface{}) (sql.Result, er
 	columns, bindValues := toColumnsAndBinds(values)
 	combinedFilter := AND(stmt.filters...)
 	queryString := strings.Join(
-		filterStringSlice(
+		filterEmptyStrings(
 			fmt.Sprintf("UPDATE %v", stmt.table.Name()),
 			fmt.Sprintf("SET %v", strings.Join(toSetColumnExpressions(columns), ", ")),
 			makeWhereClause(combinedFilter, false),

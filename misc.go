@@ -1,6 +1,6 @@
 package chem
 
-func filterStringSlice(strings ...string) []string {
+func filterEmptyStrings(strings ...string) []string {
 	out := make([]string, 0, len(strings))
 	for _, str := range strings {
 		if str != "" {

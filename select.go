@@ -130,7 +130,7 @@ func makeLimitClause(limit nullableInt, offset nullableInt) string {
 		return ""
 	}
 	return strings.Join(
-		filterStringSlice(
+		filterEmptyStrings(
 			fmt.Sprintf("LIMIT %v", limit.value),
 			makeOffsetClause(offset),
 		),
@@ -143,7 +143,7 @@ func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
 	fullyQualifyColumns := (len(tableNames) > 1)
 	return db.Prepare(
 		strings.Join(
-			filterStringSlice(
+			filterEmptyStrings(
 				fmt.Sprintf(
 					"SELECT %v FROM %v",
 					strings.Join(toColumnExpressions(stmt.columns, fullyQualifyColumns), ", "),
