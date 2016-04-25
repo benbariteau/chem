@@ -7,10 +7,16 @@ import (
 	"strings"
 )
 
+type nullableInt struct {
+	value int
+	valid bool
+}
+
 type SelectStmt struct {
 	columns   []Column
 	filters   []Filter
 	orderings []Ordering
+	limit     nullableInt
 }
 
 func Select(columnThings ...Columnser) SelectStmt {
@@ -29,6 +35,11 @@ func (stmt SelectStmt) Where(filters ...Filter) SelectStmt {
 
 func (stmt SelectStmt) OrderBy(orderings ...Ordering) SelectStmt {
 	stmt.orderings = append(stmt.orderings, orderings...)
+	return stmt
+}
+
+func (stmt SelectStmt) Limit(limit int) SelectStmt {
+	stmt.limit = nullableInt{value: limit, valid: true}
 	return stmt
 }
 
@@ -101,6 +112,13 @@ func makeOrderByClause(orderings []Ordering, fullyQualifyColumns bool) string {
 	)
 }
 
+func makeLimitClause(limit nullableInt) string {
+	if !limit.valid {
+		return ""
+	}
+	return fmt.Sprintf("LIMIT %v", limit.value)
+}
+
 func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
 	tableNames := toTableNames(stmt.columns)
 	fullyQualifyColumns := (len(tableNames) > 1)
@@ -114,6 +132,7 @@ func (stmt SelectStmt) prepareStmt(db DB) (*sql.Stmt, error) {
 				),
 				makeWhereClause(AND(stmt.filters...), fullyQualifyColumns),
 				makeOrderByClause(stmt.orderings, fullyQualifyColumns),
+				makeLimitClause(stmt.limit),
 			),
 			" ",
 		),
