@@ -1,4 +1,6 @@
 package: github.com/firba1/chem
 import:
 - package: github.com/stretchr/testify
+  version: ^1.0
 - package: github.com/mattn/go-sqlite3
+  version: ^1.0.0
