@@ -44,20 +44,20 @@ func (t TweetTableType) Columns() []Column {
 var tweetTable = TweetTableType{
 	Id: IntegerColumn{
 		BaseColumn{
-			table: TweetTableType{},
-			name:  "id",
+			Container: TweetTableType{},
+			Name:      "id",
 		},
 	},
 	Text: StringColumn{
 		BaseColumn{
-			table: TweetTableType{},
-			name:  "text",
+			Container: TweetTableType{},
+			Name:      "text",
 		},
 	},
 	Likes: IntegerColumn{
 		BaseColumn{
-			table: TweetTableType{},
-			name:  "likes",
+			Container: TweetTableType{},
+			Name:      "likes",
 		},
 	},
 }

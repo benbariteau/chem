@@ -10,14 +10,14 @@ func TestColumns(t *testing.T) {
 	cols := []Column{
 		StringColumn{
 			BaseColumn{
-				table: tweetTable,
-				name:  "text",
+				Container: tweetTable,
+				Name:      "text",
 			},
 		},
 		IntegerColumn{
 			BaseColumn{
-				table: tweetTable,
-				name:  "id",
+				Container: tweetTable,
+				Name:      "id",
 			},
 		},
 	}
@@ -33,14 +33,14 @@ func TestColumns(t *testing.T) {
 		[]Column{
 			IntegerColumn{
 				BaseColumn{
-					table: tweetTable,
-					name:  "id",
+					Container: tweetTable,
+					Name:      "id",
 				},
 			},
 			StringColumn{
 				BaseColumn{
-					table: tweetTable,
-					name:  "text",
+					Container: tweetTable,
+					Name:      "text",
 				},
 			},
 		},
