@@ -42,19 +42,19 @@ func sortColumns(cols []Column) []Column {
 }
 
 type BaseColumn struct {
-	table Table
-	name  string
+	Container Table
+	Name      string
 }
 
 func (c BaseColumn) toColumnExpression(withTableName bool) string {
 	if withTableName {
-		return fmt.Sprintf("%v.%v", c.table.Name(), c.name)
+		return fmt.Sprintf("%v.%v", c.Container.Name(), c.Name)
 	}
-	return c.name
+	return c.Name
 }
 
 func (c BaseColumn) Table() Table {
-	return c.table
+	return c.Container
 }
 
 func (c BaseColumn) Asc() Ordering {
