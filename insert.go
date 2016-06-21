@@ -26,13 +26,6 @@ func binds(num int) []string {
 func (stmt InsertStmt) Values(db DB, value interface{}) (sql.Result, error) {
 	reflection := reflect.ValueOf(value)
 	reflectedType := reflection.Type()
-	if tableType := stmt.table.Type(); reflectedType != tableType {
-		err := IncorrectTypeError{
-			Got:      reflectedType,
-			Expected: tableType,
-		}
-		return BadResult{err}, err
-	}
 
 	columns := make([]string, reflectedType.NumField())
 	values := make([]interface{}, reflectedType.NumField())
